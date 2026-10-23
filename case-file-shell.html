@@ -1,0 +1,1009 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Case File</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: case-file workspace — sticky tab rail, summary first, every finding tagged by evidence class and linked to its source */
+:root{
+  --bg:#f3f4f6; --panel:#ffffff; --ink:#1b2230; --muted:#5b6475; --line:#d9dde4; --soft:#e9ecf1;
+  --accent:#2f4a7a; --accent-soft:#e3e9f4;
+  --rec:#0f6e66; --rec-bg:#dcefed;
+  --rep:#2c5aa0; --rep-bg:#dfe8f6;
+  --self:#6b3fa0; --self-bg:#ece3f6;
+  --all:#a35c00; --all-bg:#f8ead6;
+  --unv:#8a4a5a; --unv-bg:#f3e1e5;
+  --ok:#2e7d4a; --warn:#a35c00; --bad:#a3322c; --none:#6a7383;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --display:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161d; --panel:#1a2029; --ink:#e4e8ee; --muted:#9aa4b4; --line:#2c3440; --soft:#222a35;
+  --accent:#8fb0e8; --accent-soft:#233149;
+  --rec:#5fc4b9; --rec-bg:#16312f; --rep:#86aee9; --rep-bg:#1b2a42; --self:#bf9be8; --self-bg:#2b2140;
+  --all:#e5a957; --all-bg:#382a16; --unv:#d993a5; --unv-bg:#3a2229;
+  --ok:#6cc28a; --warn:#e5a957; --bad:#ec8a83; --none:#97a1b1; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161d; --panel:#1a2029; --ink:#e4e8ee; --muted:#9aa4b4; --line:#2c3440; --soft:#222a35;
+  --accent:#8fb0e8; --accent-soft:#233149;
+  --rec:#5fc4b9; --rec-bg:#16312f; --rep:#86aee9; --rep-bg:#1b2a42; --self:#bf9be8; --self-bg:#2b2140;
+  --all:#e5a957; --all-bg:#382a16; --unv:#d993a5; --unv-bg:#3a2229;
+  --ok:#6cc28a; --warn:#e5a957; --bad:#ec8a83; --none:#97a1b1; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--panel);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:22px 14px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:end;justify-content:space-between}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,4.4vw,40px);line-height:1.05;margin:4px 0 0;letter-spacing:.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0 0 4px;letter-spacing:.01em;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0 0 6px;letter-spacing:.02em}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin}
+nav.tabs button{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:.03em;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:12px 12px 9px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:hover{color:var(--ink)}
+main .wrap{padding-block:24px 64px}
+section.view{display:grid;gap:22px}
+.lede{max-width:72ch;color:var(--muted);margin:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 20px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+/* evidence tags */
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.06em;padding:1px 6px;border-radius:3px;white-space:nowrap;vertical-align:1px}
+.c-RECORD{color:var(--rec);background:var(--rec-bg)}
+.c-REPORTED{color:var(--rep);background:var(--rep-bg)}
+.c-SELF{color:var(--self);background:var(--self-bg)}
+.c-ALLEGATION{color:var(--all);background:var(--all-bg)}
+.c-UNVERIFIED{color:var(--unv);background:var(--unv-bg)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted)}
+.legend span.item{display:flex;gap:6px;align-items:center}
+/* findings */
+.finding{display:grid;grid-template-columns:28px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid var(--soft)}
+.finding:first-of-type{border-top:0}
+.finding .n{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:3px}
+.finding b{font-weight:600}
+.finding p{margin:2px 0 0;color:var(--muted);font-size:14px}
+/* leads */
+.status{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.status::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.s-watch{color:var(--accent)} .s-confirmed{color:var(--ok)} .s-reframed{color:var(--accent)} .s-partial{color:var(--warn)} .s-notfound{color:var(--bad)} .s-unsearched{color:var(--none)}
+.leadrow{display:grid;grid-template-columns:minmax(150px,1.1fr) 150px minmax(200px,2fr);gap:6px 16px;padding:12px 0;border-top:1px solid var(--soft);align-items:start}
+.leadrow:first-child{border-top:0}
+.leadrow .q{font-weight:600}
+.leadrow .a{color:var(--muted);font-size:14px}
+@media (max-width:640px){.leadrow{grid-template-columns:1fr}}
+/* money bars */
+.bars{display:grid;gap:9px}
+.bar{display:grid;grid-template-columns:minmax(120px,210px) 1fr;gap:10px;align-items:center;font-size:13.5px}
+.bar .lab{line-height:1.25}
+.bar .lab small{display:block;color:var(--muted);font-size:11.5px}
+.bar .track{position:relative;height:20px;background:var(--soft);border-radius:3px}
+.bar .fill{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.bar .val{position:absolute;left:calc(var(--w) + 6px);top:0;line-height:20px;font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fill.in{background:var(--rec)} .fill.debt{background:var(--all)} .fill.out{background:var(--rep)} .fill.forg{background:var(--rec);opacity:.5}
+.barhead{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.filters .fl{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.chip{font-family:var(--body);font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:20px;padding:3px 11px;cursor:pointer}
+.chip[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+.chip .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:0}
+input[type=search]{font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);min-width:0;width:100%;max-width:280px}
+/* timeline */
+.tl{position:relative;display:grid;gap:0}
+.tl-year{font-family:var(--display);font-weight:700;font-size:22px;color:var(--accent);padding:18px 0 4px;border-bottom:1px solid var(--line);position:sticky;top:calc(env(safe-area-inset-top,0px) + 78px);background:var(--bg);z-index:2}
+.ev{display:grid;grid-template-columns:96px 1fr;gap:4px 16px;padding:10px 0;border-bottom:1px solid var(--soft)}
+.ev .d{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:2px}
+.ev .t{min-width:0}
+.ev .tags{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:4px;align-items:center}
+.etag{font-family:var(--mono);font-size:10.5px;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px}
+.src{font-family:var(--mono);font-size:11px}
+@media (max-width:520px){.ev{grid-template-columns:1fr}}
+/* map */
+.mapbox{overflow-x:auto}
+.mapbox svg{display:block;min-width:820px;width:100%;height:auto}
+.node rect{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+.node text{fill:var(--ink);font-family:var(--body);font-size:12.5px}
+.node text.sub{fill:var(--muted);font-family:var(--mono);font-size:10px}
+.node{cursor:pointer}
+.node:hover rect,.node.sel rect{stroke:var(--accent);stroke-width:2}
+.node.k-subject rect{fill:var(--accent);stroke:var(--accent)} .node.k-subject text{fill:var(--panel);font-weight:600} .node.k-subject text.sub{fill:var(--accent-soft)}
+.node.k-co rect{fill:var(--accent-soft)}
+.node.k-re rect{fill:var(--rec-bg)}
+.node.k-pol rect{fill:var(--self-bg)}
+.node.k-money rect{fill:var(--all-bg)}
+.node.k-legal rect{fill:var(--unv-bg)}
+.edge{stroke:var(--muted);stroke-width:1.2;fill:none;opacity:.55}
+.edge.strong{stroke-width:2;opacity:.8}
+.edge.dash{stroke-dasharray:4 4}
+.elab{fill:var(--muted);font-family:var(--mono);font-size:9.5px}
+.elab-bg{fill:var(--bg)}
+.detail{min-height:120px}
+.detail .empty{color:var(--muted)}
+/* tables */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--soft);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--soft);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* cards */
+.ecard{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:6px;align-content:start;min-width:0}
+.ecard .row1{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.ecard .type{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
+.ecard dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:13.5px}
+.ecard dt{color:var(--muted)}
+.ecard dd{margin:0;min-width:0}
+.conf{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:1px 6px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.cf-CONFIRMED{color:var(--ok)} .cf-LIKELY{color:var(--rep)} .cf-POSSIBLE{color:var(--warn)} .cf-UNLIKELY{color:var(--none)}
+.grouphead{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 -6px}
+/* questions */
+.qcard{border-left:3px solid var(--warn);background:var(--panel);border-radius:0 6px 6px 0;padding:14px 18px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.qcard h3{margin-bottom:4px}
+.qcard .obs{margin:0 0 8px}
+.qcard ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+.qcard .check{margin-top:8px;font-size:13.5px}
+.qcard .check b{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+details.more{margin-top:4px}
+details.more summary{cursor:pointer;color:var(--accent);font-size:13.5px}
+.note{font-size:13px;color:var(--muted)}
+.todo li{margin:6px 0}
+.todo .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px}
+footer{color:var(--muted);font-size:12.5px}
+/* investigate buttons */
+.inv-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:3px;padding:2px 7px;cursor:pointer;white-space:nowrap;line-height:1.4;vertical-align:1px}
+.inv-btn:hover{border-color:var(--accent)}
+.inv-btn svg{width:12px;height:12px;flex:none}
+.inv-btn.on{color:var(--ok);background:transparent;border-color:currentColor}
+.inv-btn.on::after{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.finding .act,.leadrow .act{margin-top:6px}
+.ev .tags .inv-btn{margin-left:auto}
+/* drawer */
+.drawer[hidden],.scrim[hidden]{display:none}
+.scrim{position:fixed;inset:0;background:rgba(8,12,18,.42);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,100%);background:var(--panel);color:var(--ink);border-left:1px solid var(--line);z-index:21;overflow-y:auto;display:grid;gap:16px;align-content:start;
+  padding-top:calc(env(safe-area-inset-top,0px) + 18px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 28px);padding-left:20px;padding-right:max(20px,env(safe-area-inset-right,0px));box-shadow:-8px 0 30px rgba(0,0,0,.15)}
+.drawer .dhead{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.drawer h2{font-size:22px}
+.xbtn{background:none;border:1px solid var(--line);color:var(--ink);border-radius:4px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1;flex:none}
+.dsec{display:grid;gap:8px}
+.dsec > .barhead{margin:0}
+.linkrow{display:flex;flex-wrap:wrap;gap:6px}
+.linkrow a{font-size:13px;border:1px solid var(--line);border-radius:20px;padding:3px 10px;text-decoration:none}
+.linkrow a:hover{border-color:var(--accent)}
+.ai-out{white-space:pre-wrap;font-size:14px;background:var(--soft);border-radius:4px;padding:12px 14px;min-height:0}
+.ai-out:empty{display:none}
+.btn{font-family:var(--body);font-size:14px;font-weight:500;border-radius:4px;padding:7px 14px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--panel)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+textarea,input[type=text],select{font:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink);width:100%;min-width:0}
+textarea{min-height:70px;resize:vertical}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* investigations */
+.ihead{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:baseline}
+.icount{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.icount b{color:var(--ink);font-size:15px}
+.icol{display:grid;gap:10px;align-content:start}
+.igroup{display:grid;gap:10px}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
+.fd .sum{font-weight:600;color:var(--ink);margin:2px 0 4px}
+.fd ul{margin:4px 0 0;padding-left:18px;display:grid;gap:3px;font-size:13.5px;color:var(--muted)}
+.fd .rep{display:block;margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.icard .nt{border-left:2px solid var(--line);padding-left:8px}
+.icard{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--none);border-radius:0 6px 6px 0;padding:12px 14px;display:grid;gap:6px;min-width:0}
+.icard.st-active{border-left-color:var(--accent)} .icard.st-open{border-left-color:var(--warn)} .icard.st-done{border-left-color:var(--ok)} .icard.st-parked{border-left-color:var(--none)}
+.icard .t{font-weight:600}
+.icard .m{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.icard .nt{font-size:14px;color:var(--muted);margin:0}
+.icard .fd{font-size:14px;margin:0;border-top:1px dashed var(--line);padding-top:8px}
+.icard .fd > b,.drawer .fd > b{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ok);font-weight:500;display:block}
+.icard .btnrow select{width:auto}
+.icard .linkbtn{background:none;border:0;color:var(--accent);cursor:pointer;font:inherit;font-size:13px;padding:0}
+/* brief */
+.bl{font-family:var(--display);font-size:clamp(20px,2.6vw,26px);line-height:1.25;font-weight:600;margin:0;text-wrap:balance;max-width:60ch}
+.scen{display:grid;gap:6px;border-top:3px solid var(--line);padding-top:10px}
+.scen.s1{border-color:var(--ok)} .scen.s2{border-color:var(--warn)} .scen.s3{border-color:var(--bad)}
+.scen .pct{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.scen p{margin:0;font-size:14px}
+.opt{display:grid;gap:6px}
+.opt .tagline{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.opt ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+.opt b.k{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);font-weight:500}
+.trip{display:grid;grid-template-columns:120px 1fr;gap:4px 14px;padding:10px 0;border-top:1px solid var(--soft);align-items:start}
+.trip:first-child{border-top:0}
+@media (max-width:560px){.trip{grid-template-columns:1fr}}
+.chk{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.chk li{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:14.5px}
+.chk li::before{content:"";width:12px;height:12px;border:1.5px solid var(--accent);border-radius:3px;margin-top:4px}
+.disclaim{font-size:12.5px;color:var(--muted);border-left:3px solid var(--line);padding-left:10px}
+/* manual ops */
+.mop{display:grid;grid-template-columns:28px 1fr;gap:6px 12px;padding:14px 0;border-top:1px solid var(--soft)}
+.mop:first-child{border-top:0}
+.mop input[type=checkbox]{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.mop.done .mt{text-decoration:line-through;color:var(--muted)}
+.mop .mt{font-weight:600}
+.mop .mm{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:4px 0}
+.mop ol{margin:4px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.mop ol li{margin:2px 0}
+.pri{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:3px;border:1px solid currentColor}
+.pri-1{color:var(--bad)} .pri-2{color:var(--warn)} .pri-3{color:var(--none)}
+.who2{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+/* live ticker */
+.ticker{display:flex;align-items:stretch;border-top:1px solid var(--line);background:var(--soft);font-size:13px;min-width:0}
+.ticker .tk-lab{flex:none;display:flex;align-items:center;gap:7px;padding:6px 12px 6px max(16px,env(safe-area-inset-left,0px));font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--panel);border-right:1px solid var(--line);white-space:nowrap}
+.ticker .tk-dot{width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.ticker .tk-new{font-family:var(--mono);font-size:10.5px;color:var(--panel);background:var(--accent);border-radius:9px;padding:0 6px;letter-spacing:.02em}
+.ticker .tk-view{flex:1;overflow:hidden;min-width:0;position:relative}
+.ticker .tk-track{display:flex;gap:34px;width:max-content;padding:6px 16px;white-space:nowrap}
+.ticker .tk-item{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:0}
+.ticker .tk-item:hover .tk-txt{text-decoration:underline}
+.ticker .tk-time{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.ticker .tk-item.fresh::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent)}
+@media (prefers-reduced-motion:no-preference){
+ .ticker .tk-track.run{animation:tk var(--dur,60s) linear infinite}
+ .ticker .tk-view:hover .tk-track.run,.ticker .tk-view:focus-within .tk-track.run{animation-play-state:paused}
+ @keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+ .ticker .tk-dot{animation:pulse 1.8s ease-in-out infinite}
+ @keyframes pulse{50%{opacity:.35}}
+}
+@media (prefers-reduced-motion:reduce){.ticker .tk-view{overflow-x:auto}}
+@media (prefers-reduced-motion:no-preference){.node rect{transition:stroke .15s}}
+/* Money over time */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.tile .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile .v{font-family:var(--display);font-size:28px;font-weight:700;line-height:1.15;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.tile .d{font-size:12.5px;color:var(--muted);line-height:1.35}
+.est{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:1px 6px;border-radius:3px;border:1px dashed var(--muted);color:var(--muted);vertical-align:middle}
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.chart .lbl{fill:var(--ink);font-size:11.5px}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .zero{stroke:var(--muted);stroke-width:1}
+.chart .band{fill:var(--accent);opacity:.18}
+.chart .mid{stroke:var(--accent);stroke-width:2;fill:none}
+.chart .pt{fill:var(--accent);stroke:var(--panel);stroke-width:2}
+.chart .pt.low{fill:var(--panel);stroke:var(--accent)}
+.chart .whisk{stroke:var(--s2);stroke-width:2;stroke-dasharray:4 3}
+.chart .hit{fill:transparent;cursor:default}
+.chart .hit:hover+.hl,.chart .hl.on{opacity:1}
+.chart .hl{opacity:0;stroke:var(--muted);stroke-dasharray:3 3}
+.chart rect.seg{stroke:var(--panel);stroke-width:2}
+.chart rect.seg:hover,.chart rect.lane:hover{opacity:.8}
+.chart rect.lane{rx:4}
+.legend2{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin:6px 0 4px}
+.legend2 i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:fixed;z-index:60;max-width:300px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:12.5px;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.18);pointer-events:none;display:none}
+.tip b{display:block;margin-bottom:2px}
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;margin:10px 0 14px}
+.calc label{font-size:12.5px;color:var(--muted);display:grid;gap:4px}
+.calc input[type=range]{width:100%}
+.calc select{font:inherit;font-size:13px;padding:4px 6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px}
+.calc output{font-family:var(--mono);color:var(--ink);font-size:13px}
+.verdict{border-left:4px solid var(--muted);padding:8px 12px;background:var(--soft);border-radius:0 4px 4px 0;margin:10px 0;font-size:14px}
+.verdict.yes{border-color:var(--ok)}.verdict.no{border-color:var(--bad)}
+table.wt{width:100%;border-collapse:collapse;font-size:13px}
+table.wt th,table.wt td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.wt th{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+table.wt td.n{font-family:var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+.st{font-family:var(--mono);font-size:11px;white-space:nowrap}
+.st.paid{color:var(--ok)}.st.unpaid{color:var(--bad)}.st.open{color:var(--warn)}.st.unk{color:var(--none)}
+.wscroll{overflow-x:auto}
+/* Run logs */
+.logcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;align-items:start}
+.logent{border-top:1px solid var(--line);padding:12px 0}
+.logent:first-of-type{border-top:0}
+.logent .lh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.logent .lt{font-weight:600;font-size:14.5px;margin:3px 0 4px;color:var(--ink)}
+.oc{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:1px 6px;border-radius:3px;border:1px solid currentColor}
+.oc.done{color:var(--ok)}.oc.parked{color:var(--warn)}.oc.none{color:var(--none)}.oc.fail{color:var(--bad)}.oc.merged{color:var(--accent)}
+.logent details{margin-top:6px;font-size:13px}
+.logent details summary{cursor:pointer;color:var(--accent);font-size:12.5px}
+/* claims ledger */
+.vbar{display:flex;height:22px;border-radius:4px;overflow:hidden;gap:2px;margin:6px 0}
+.vseg{min-width:6px}
+.vd{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:3px;color:var(--c);border:1px solid var(--c);white-space:nowrap}
+.vd.val{--c:var(--self)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr));gap:14px;align-items:start}
+.ccard{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:6px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.ccard .row1{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.ccard h3{margin:0;font-size:17px;line-height:1.3}
+.cmeta{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:13.5px}.cmeta dt{color:var(--muted)}.cmeta dd{margin:0;min-width:0}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media (max-width:520px){.pc{grid-template-columns:1fr}}
+.pc ul{margin:4px 0 0;padding-left:18px;font-size:13.5px;display:grid;gap:3px}
+.watch{border-left:4px solid var(--none)}.watch.hit{border-left-color:var(--bad);background:var(--unv-bg)}
+.watch ul{margin:4px 0 0;padding-left:18px;font-size:14px}
+.grade{display:inline-block;font-family:var(--mono);font-size:10px;padding:0 5px;border-radius:3px;border:1px solid var(--line);color:var(--muted);margin-right:5px;vertical-align:1px}
+.logent .rep{white-space:pre-wrap;font-size:12.5px;line-height:1.5;background:var(--soft);border-radius:4px;padding:10px;margin-top:6px;max-height:420px;overflow:auto}
+</style>
+
+<header class="top"><div class="wrap">
+  <div>
+    <div class="eyebrow" id="hd-eye"></div>
+    <h1 id="hd-title"></h1>
+  </div>
+  <div class="meta" id="hd-meta"></div>
+</div></header>
+
+<nav class="tabs" aria-label="Views"><div class="wrap" role="tablist" id="tabs"></div><div class="ticker" id="ticker" hidden aria-label="Latest findings"><div class="tk-lab"><span class="tk-dot"></span>Latest<span class="tk-new" id="tknew" hidden></span></div><div class="tk-view"><div class="tk-track" id="tktrack"></div></div></div></nav>
+
+<main><div class="wrap" id="main"></div></main>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Investigate" hidden></aside>
+
+<script>
+/* ============================================================
+   DATA — the single source of truth. The scheduled merge run edits
+   ONLY these structures; views render from them automatically.
+   ============================================================ */
+/* ============================================================
+   CASE CONFIG — fill this in once, at kickoff. Everything else
+   on the page reads from it.
+   ============================================================ */
+const CASE = {
+  key:"case",                       // short slug, used for browser-storage keys (e.g. "nc13-rumors")
+  title:"New Case File",            // page heading, e.g. "NC-13 Rumor File"
+  eyebrow:"Working file · public-record research",
+  subject:"the subject",            // who/what this file is about, as used in sentences ("the candidate", "Acme Corp")
+  subjectShort:"the subject",       // short form for labels ("Is it the subject?")
+  searchName:"",                    // quoted name used in the drawer's search links, e.g. "Jane Doe"
+  watchName:"",                     // YOUR name: any appearance anywhere in the data is flagged on the Overview
+  owner:"you",                      // who the file is for, used in the Ask-Claude prompt
+  purpose:"make sound, well-informed decisions",
+  mergeTimes:"the daily merge",    // shown on the Run Logs tab, e.g. "the daily merge, around 6:40 PM"
+  pass:"Pass 0",                    // header meta line; the merge run updates it
+  asof:"",                          // date of last merge
+  searchLinks:[                     // extra registry links in the Investigate drawer: ["Label","https://..."]
+  ],
+  reports:[                         // research log on the Sources tab: ["pass","date","project/path.md"]
+  ]
+};
+
+const CLS = {
+  RECORD:{label:"Record",desc:"Court or government filing"},
+  REPORTED:{label:"Reported",desc:"Reputable news"},
+  SELF:{label:"Self-reported",desc:"The subject's own statements, site, campaign or marketing"},
+  ALLEGATION:{label:"Allegation",desc:"Claim in a lawsuit or by an adverse party; unproven"},
+  UNVERIFIED:{label:"Unverified",desc:"Forum, social post, aggregator or hearsay"}
+};
+
+/* Source reliability grades (optional 3rd element of each SRC entry) */
+const GRADES = {
+  A:{label:"A · Primary record",desc:"Court, government, regulator, the document itself"},
+  B:{label:"B · Established outlet",desc:"News organization with editors and a corrections policy"},
+  C:{label:"C · Interested party",desc:"Campaign, advocacy group, partisan outlet, the subject or an opponent"},
+  D:{label:"D · Anonymous / social",desc:"Forum, social post, unsourced blog, screenshot"},
+  E:{label:"E · Unknown",desc:"Can't tell who is behind it yet"}
+};
+
+/* Claims Ledger verdicts */
+const VERDICTS = {
+  SUPPORTED:{label:"Supported",desc:"Primary records or multiple independent solid sources back it",col:"--ok"},
+  PARTLY:{label:"Partly supported",desc:"Some of it holds; key parts don't or are exaggerated",col:"--s4"},
+  OPEN:{label:"Can't tell yet",desc:"Not enough evidence either way",col:"--none"},
+  UNSUPPORTED:{label:"Unsupported",desc:"Searched for; no credible evidence found",col:"--warn"},
+  CONTRADICTED:{label:"Contradicted",desc:"Solid evidence shows it is false",col:"--bad"}
+};
+
+/* Timeline threads: short key -> label. Set at kickoff, e.g. {subj:"The subject",pol:"Politics",money:"Money",legal:"Lawsuits",rumor:"Rumors"} */
+const THREADS = {
+  subj:"The subject", legal:"Legal", money:"Money", pol:"Politics", rumor:"Rumors"
+};
+
+/* Sources: key:["Label","https://url","grade A–E (optional)"] */
+const SRC = {
+};
+
+/* Claims Ledger: one row per rumor or claim being tested.
+   kind:"fact"   -> checkable; gets a verdict.
+   kind:"values" -> a judgment evidence can't settle (e.g. "what counts as giving back");
+                    no verdict — pro/con hold the strongest case each side makes, and v is ignored.
+   {id:"c-short-slug", kind:"fact"|"values", claim:"the claim as stated", by:"who is making/spreading it",
+    first:"YYYY-MM-DD", firstWhere:"where it first appeared", spread:"how it travelled",
+    v:"SUPPORTED|PARTLY|OPEN|UNSUPPORTED|CONTRADICTED",
+    pro:["best evidence for; tag classes inline like {RECORD} or {REPORTED}",...], con:["best evidence against",...],
+    note:"what would settle it / gaps", s:["srcKey",...]} */
+const CLAIMS = [
+];
+
+/* Timeline events: {d:"YYYY-MM-DD", dl:"display date", t:"text (may use <b>,<i>)", c:CLASS, th:[threads], s:[src keys]} */
+const EVENTS = [
+];
+
+/* Leads the owner brought in: {q, st: confirmed|reframed|partial|notfound|unsearched|watch, a: html, s:[]} */
+const LEADS = [
+];
+
+/* Key findings, most important first: {h, p, c} */
+const FINDINGS = [
+];
+
+/* Optional money bars on the Overview, $M: {l, sub, v, k:"in"|"out"|"debt"|"forg", c} */
+const MONEY = { in:[], out:[], debt:[] };
+
+/* Connection map: NODES {id,x,y,k,l,sub,info,go}; k = subject|co|re|pol|money|legal. Canvas is 1010×625. The first node is the centre. */
+const NODES = [
+];
+/* EDGES: [fromId, toId, "label", strong(1), dashed(1)] */
+const EDGES = [
+];
+
+/* Entities: {g:"group heading", n, t:type, role, status, when, conf:CONFIRMED|LIKELY|POSSIBLE|UNLIKELY, notes, s} */
+const ENTITIES = [
+];
+/* People, only in their role in the record: {n, r, c, s} */
+const PEOPLE = [
+];
+/* Affiliations the subject describes themselves: {n, k:type, d, s} */
+const AFFIL = [
+];
+/* Legal & money matters: {m, ct, p, ty, dt, o, amt, c, s} */
+const LEGAL = [
+];
+/* Name variants / possible aliases: {n, conf, why, s} */
+const ALIASES = [
+];
+/* Things that don't add up: {h, obs, poss:[...], check} */
+const QUESTIONS = [
+];
+/* Next searches: {t, w:"who/what tool"} */
+const TODO = [
+];
+/* Decision brief (optional; the Brief tab hides itself while bottom is empty) */
+const BRIEF = {
+  asof:"", title:"What this means for you", bottom:"",
+  facts:[],        // ["fact","detail"]
+  scen:[],         // {n,p,sig,c:"s1|s2|s3"}
+  opts:[],         // {w,t,do:[],pro,con}
+  trips:[],        // ["trigger","what to do"]
+  protect:[], protectTitle:"Protect yourself now",
+  team:[], teamTitle:"For people who rely on you",
+  ask:[], askTitle:"Questions worth asking directly"
+};
+/* Things only the owner can do: {id:"m-slug", p:1|2|3, who, t, why, link:["label","url"], steps:[]} */
+const MANUAL = [
+];
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const tag = c=>`<span class="tag c-${c}" title="${esc(CLS[c].desc)}">${CLS[c].label.toUpperCase()}</span>`;
+const srcs = arr=>arr&&arr.length?arr.map(k=>SRC[k]?`${SRC[k][2]?`<span class="grade" title="${esc((GRADES[SRC[k][2]]||GRADES.E).label)}">${esc(SRC[k][2])}</span>`:""}<a class="src" href="${SRC[k][1]}" target="_blank" rel="noopener">${esc(SRC[k][0])}</a>`:"").join(" · "):`<span class="src note">no source yet</span>`;
+const store = {get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const strip = s=>String(s).replace(/<[^>]+>/g,"");
+const tagify = s=>esc(s).replace(/\{(RECORD|REPORTED|SELF|ALLEGATION|UNVERIFIED)\}/g,(m,k)=>tag(k));
+const slug = s=>strip(s).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48);
+
+/* ---------- Registry of investigable items ---------- */
+const REG = {};
+function addReg(ref,o){let r=ref,i=2;while(REG[r])r=ref+"-"+(i++);REG[r]=o;return r}
+FINDINGS.forEach((f,i)=>f.ref=addReg("f-"+(i+1),{title:f.h,kind:"Finding",ctx:f.p,c:f.c,s:[],view:"overview"}));
+LEADS.forEach(l=>l.ref=addReg("lead-"+slug(l.q),{title:l.q,kind:"Your lead",ctx:strip(l.a),s:l.s,view:"overview"}));
+EVENTS.forEach(e=>e.ref=addReg("ev-"+e.d,{title:e.dl+" · "+strip(e.t).slice(0,80)+(strip(e.t).length>80?"…":""),kind:"Timeline event",ctx:e.dl+": "+strip(e.t),c:e.c,s:e.s,th:e.th,view:"timeline"}));
+NODES.forEach(n=>n.ref=addReg("node-"+n.id,{title:n.l,kind:"Connection",ctx:n.info,s:[],view:"map"}));
+ENTITIES.forEach(e=>e.ref=addReg("ent-"+slug(e.n),{title:e.n,kind:"Entity",ctx:`${e.t}. Role: ${e.role}. Status: ${e.status}. When: ${e.when}. Confidence tied to ${CASE.subjectShort}: ${e.conf}. ${e.notes}`,s:e.s,view:"entities"}));
+PEOPLE.forEach(p=>p.ref=addReg("per-"+slug(p.n),{title:p.n,kind:"Person",ctx:p.r,c:p.c,s:p.s,view:"entities"}));
+LEGAL.forEach(r=>r.ref=addReg("lg-"+slug(r.m),{title:r.m,kind:"Legal / money",ctx:`${r.m}. ${r.ct}. Parties: ${r.p}. Type: ${r.ty}. Date: ${r.dt}. Status: ${r.o}. Amount: ${r.amt}.`,c:r.c,s:r.s,view:"legal"}));
+ALIASES.forEach(a=>a.ref=addReg("al-"+slug(a.n),{title:a.n,kind:"Name variant",ctx:`${a.n}: ${a.conf}. ${a.why}`,s:a.s,view:"aliases"}));
+AFFIL.forEach(a=>a.ref=addReg("af-"+slug(a.n),{title:a.n,kind:"Self-reported affiliation · "+a.k,ctx:`${a.n} (${a.k}). ${a.d} This comes from the subject’s own statements; nothing beyond that has been researched. Investigating it means looking for public overlap (board roles, donations in public filings, shared people), not private beliefs.`,c:"SELF",s:a.s,view:"entities"}));
+CLAIMS.forEach(c=>c.ref=addReg("cl-"+(c.id||slug(c.claim)),{title:c.claim,kind:c.kind==="values"?"Values question":"Claim",ctx:`${c.claim}. Said by: ${c.by||"unknown"}. ${c.kind==="values"?"Values question, no verdict.":"Verdict: "+((VERDICTS[c.v]||VERDICTS.OPEN).label)+"."} For: ${strip((c.pro||[]).join("; "))}. Against: ${strip((c.con||[]).join("; "))}. ${c.note||""}`,s:c.s,view:"claims"}));
+QUESTIONS.forEach(q=>q.ref=addReg("q-"+slug(q.h),{title:q.h,kind:"Open question",ctx:`${q.obs} Possible explanations: ${q.poss.join(" / ")} Would settle it: ${q.check}`,s:[],view:"questions"}));
+
+const ICON_MAG = `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.4 10.4 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
+let INV = [], DB = null, CAN_WRITE = true, invState = "loading";
+const invFor = ref=>INV.find(x=>x.ref===ref&&x.status!=="done");
+const invBtn = ref=>{const on=invFor(ref);return `<button class="inv-btn${on?" on":""}" data-inv="${ref}" title="Investigate further">${ICON_MAG}<span>${on?"Tracking":"Investigate"}</span></button>`};
+
+const VIEWS = [
+ ["overview","Overview"],["claims","Claims Ledger"],["brief","Decision Brief"],["logs","Run Logs"],["todo","Your To-Dos"],["investigations","Investigations"],["timeline","Timeline"],["map","Connections"],["entities","Entities & People"],
+ ["legal","Legal & Money"],["aliases","Names"],["questions","Open Questions"],["sources","Sources & Next Steps"]
+];
+
+function legend(){return `<div class="legend">${Object.keys(CLS).map(c=>`<span class="item">${tag(c)} ${esc(CLS[c].desc)}</span>`).join("")}</div>`}
+
+function watchHits(){
+ const w=(CASE.watchName||"").trim().toLowerCase();if(!w)return [];
+ const hits=[];const chk=(txt,where)=>{if(strip(txt||"").toLowerCase().includes(w))hits.push(strip(where))};
+ FINDINGS.forEach(f=>chk(f.h+" "+f.p,"Finding: "+f.h));
+ CLAIMS.forEach(c=>chk([c.claim,c.by,c.spread,c.note,...(c.pro||[]),...(c.con||[])].join(" "),"Claim: "+c.claim));
+ EVENTS.forEach(e=>chk(e.t,"Timeline: "+e.dl));
+ PEOPLE.forEach(p=>chk(p.n+" "+p.r,"Person: "+p.n));
+ ENTITIES.forEach(e=>chk([e.n,e.role,e.notes].join(" "),"Entity: "+e.n));
+ LEGAL.forEach(r=>chk([r.m,r.p,r.o].join(" "),"Legal: "+r.m));
+ QUESTIONS.forEach(q=>chk(q.h+" "+q.obs,"Question: "+q.h));
+ return hits;
+}
+function verdictBar(){
+ if(!CLAIMS.length)return "";
+ const facts=CLAIMS.filter(c=>c.kind!=="values"),vals=CLAIMS.length-facts.length,n=k=>facts.filter(c=>(c.v||"OPEN")===k).length;
+ const segs=Object.keys(VERDICTS).filter(k=>n(k)).map(k=>`<div class="vseg" style="flex:${n(k)};background:var(${VERDICTS[k].col})" title="${esc(VERDICTS[k].label)}: ${n(k)}"></div>`).join("");
+ return `<div class="panel"><h2>Claims at a glance</h2><p class="note" style="margin:0 0 6px">${facts.length} checkable claim${facts.length===1?"":"s"}${vals?` · ${vals} values question${vals===1?"":"s"} (both sides shown, no verdict)`:""} · <a href="#claims" data-go-tk="claims">open the Claims Ledger</a></p>
+  ${facts.length?`<div class="vbar">${segs}</div><div class="legend2">${Object.keys(VERDICTS).map(k=>`<span><i style="background:var(${VERDICTS[k].col})"></i>${esc(VERDICTS[k].label)} · ${n(k)}</span>`).join("")}</div>`:""}</div>`;
+}
+function vOverview(){
+ const stLabel={confirmed:"Confirmed",reframed:"Confirmed, reframed",partial:"Partly found",notfound:"Not found yet",unsearched:"Not yet searched",watch:"Watching"};
+ const allM=[...MONEY.in,...MONEY.out,...MONEY.debt],max=Math.max(1,...allM.map(b=>b.v))*1.3;
+ const bar=b=>`<div class="bar"><div class="lab">${esc(b.l)} ${tag(b.c)}<small>${esc(b.sub)}</small></div><div class="track"><div class="fill ${b.k}" style="width:${(b.v/max*100).toFixed(1)}%"></div><span class="val" style="--w:${(b.v/max*100).toFixed(1)}%">$${b.v.toFixed(2)}M</span></div></div>`;
+ const hits=watchHits(), empty=!FINDINGS.length&&!LEADS.length&&!CLAIMS.length;
+ return `
+ <p class="lede">What is known about ${esc(CASE.subject)}, sorted by how solid the evidence is. Possibilities are labeled as possibilities; values questions are kept apart from checkable facts.</p>
+ ${legend()}
+ ${CASE.watchName?`<div class="panel watch${hits.length?" hit":""}"><h3 style="margin:0 0 2px">${hits.length?`Your name appears ${hits.length} time${hits.length===1?"":"s"} in this file`:`Your name has not appeared in this file`}</h3>${hits.length?`<ul>${hits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`:`<p class="note" style="margin:0">Every finding, claim, event, person, entity, legal record and question is checked for “${esc(CASE.watchName)}”.</p>`}</div>`:""}
+ ${empty?`<div class="panel"><h2>Nothing filed yet</h2><p style="margin:0">The kickoff session seeds the first findings, claims and investigation cards. The scheduled runs fill in the rest.</p></div>`:""}
+ ${verdictBar()}
+ ${FINDINGS.length||LEADS.length?`<div class="grid2">
+  ${FINDINGS.length?`<div class="panel"><h2>What the record shows</h2>
+   ${FINDINGS.map((f,i)=>`<div class="finding"><span class="n">${String(i+1).padStart(2,"0")}</span><div><b>${esc(f.h)}</b> ${tag(f.c)}<p>${esc(f.p)}</p><div class="act">${invBtn(f.ref)}</div></div></div>`).join("")}
+  </div>`:""}
+  ${LEADS.length?`<div class="panel"><h2>Your leads, checked</h2>
+   <div>${LEADS.map(l=>`<div class="leadrow"><div class="q">${esc(l.q)}</div><div><span class="status s-${l.st}">${stLabel[l.st]}</span></div><div class="a">${l.a}${l.s.length?`<div>${srcs(l.s)}</div>`:""}<div class="act">${invBtn(l.ref)}</div></div></div>`).join("")}</div>
+  </div>`:""}
+ </div>`:""}
+ ${allM.length?`<div class="panel"><h2>The money picture</h2>
+  <p class="note" style="margin:0 0 4px">In millions. “~” marks inferred figures.</p>
+  ${["in","out","debt"].filter(k=>MONEY[k].length).map(k=>`<div class="barhead">${{in:"Coming in",out:"Going out",debt:"Owed"}[k]}</div><div class="bars">${MONEY[k].map(bar).join("")}</div>`).join("")}
+ </div>`:""}`;
+}
+
+/* ---------- Claims Ledger ---------- */
+const CL_KEYS=[...Object.keys(VERDICTS),"VALUES"];
+let clState={v:new Set(CL_KEYS),q:""};
+function vClaims(){
+ return `<div><h2>Claims Ledger</h2><p class="lede">One card per claim: who is saying it, where it started, how it spread, the best evidence on each side, and a verdict. <b>Values questions</b> (what someone ought to do, what counts as good) get the strongest case from each side and no verdict, because evidence alone can’t settle them.</p></div>
+ <div class="legend">${Object.entries(VERDICTS).map(([k,v])=>`<span class="item"><span class="vd" style="--c:var(${v.col})">${esc(v.label)}</span> ${esc(v.desc)}</span>`).join("")}<span class="item"><span class="vd val">Values</span> A judgment, not a checkable fact</span></div>
+ <div class="panel" style="display:grid;gap:10px">
+  <div class="filters" id="fcv"><span class="fl">Show</span>${CL_KEYS.map(k=>`<button class="chip" data-cv="${k}" aria-pressed="${clState.v.has(k)}">${k==="VALUES"?"Values questions":esc(VERDICTS[k].label)}</button>`).join("")}</div>
+  <label class="filters"><span class="fl">Search</span><input type="search" id="clq" placeholder="Search claims" value="${esc(clState.q)}"></label>
+ </div>
+ <div class="cgrid" id="cl"></div>`;
+}
+function claimCard(c){
+ const val=c.kind==="values",V=VERDICTS[c.v]||VERDICTS.OPEN;
+ const li=a=>(a||[]).length?`<ul>${a.map(x=>`<li>${tagify(x)}</li>`).join("")}</ul>`:`<p class="note" style="margin:4px 0 0">Nothing filed yet.</p>`;
+ return `<article class="ccard" style="--c:var(${val?"--self":V.col})">
+  <div class="row1"><h3>${esc(c.claim)}</h3>${val?`<span class="vd val">Values</span>`:`<span class="vd" style="--c:var(${V.col})">${esc(V.label)}</span>`}</div>
+  ${c.by||c.first||c.firstWhere||c.spread?`<dl class="cmeta">${c.by?`<dt>Who says it</dt><dd>${esc(c.by)}</dd>`:""}${c.first||c.firstWhere?`<dt>First seen</dt><dd>${esc([c.first,c.firstWhere].filter(Boolean).join(" · "))}</dd>`:""}${c.spread?`<dt>How it spread</dt><dd>${esc(c.spread)}</dd>`:""}</dl>`:""}
+  <div class="pc"><div><div class="barhead">${val?"Strongest case for":"Evidence for"}</div>${li(c.pro)}</div><div><div class="barhead">${val?"Strongest case against":"Evidence against"}</div>${li(c.con)}</div></div>
+  ${c.note?`<p class="note" style="margin:0"><b>${val?"Where the disagreement really sits":"What would settle it"}:</b> ${esc(c.note)}</p>`:""}
+  <div>${srcs(c.s)}</div><div>${invBtn(c.ref)}</div></article>`;
+}
+function drawClaims(){
+ const q=clState.q.toLowerCase(),ord=k=>CL_KEYS.indexOf(k);
+ const list=CLAIMS.filter(c=>clState.v.has(c.kind==="values"?"VALUES":(c.v||"OPEN"))&&(!q||strip([c.claim,c.by,c.note,...(c.pro||[]),...(c.con||[])].join(" ")).toLowerCase().includes(q)))
+  .sort((a,b)=>ord(a.kind==="values"?"VALUES":(a.v||"OPEN"))-ord(b.kind==="values"?"VALUES":(b.v||"OPEN")));
+ $("#cl").innerHTML=list.map(claimCard).join("")||`<p class="note">${CLAIMS.length?"No claims match these filters.":"No claims filed yet."}</p>`;
+}
+function bindClaims(){
+ drawClaims();
+ $("#fcv").addEventListener("click",e=>{const b=e.target.closest("[data-cv]");if(!b)return;const k=b.dataset.cv;clState.v.has(k)?clState.v.delete(k):clState.v.add(k);b.setAttribute("aria-pressed",clState.v.has(k));drawClaims()});
+ $("#clq").addEventListener("input",e=>{clState.q=e.target.value;drawClaims()});
+}
+
+let tlState={cls:new Set(Object.keys(CLS)),th:new Set(Object.keys(THREADS)),q:""};
+function vTimeline(){
+ return `<div><h2>Timeline</h2><p class="lede">${EVENTS.length} dated event${EVENTS.length===1?"":"s"}. Filter by thread or by evidence class.</p></div>
+ <div class="panel" style="display:grid;gap:10px">
+  <div class="filters" id="fth"><span class="fl">Thread</span>${Object.entries(THREADS).map(([k,v])=>`<button class="chip" data-th="${k}" aria-pressed="${tlState.th.has(k)}">${esc(v)}</button>`).join("")}</div>
+  <div class="filters" id="fcl"><span class="fl">Evidence</span>${Object.keys(CLS).map(c=>`<button class="chip" data-cl="${c}" aria-pressed="${tlState.cls.has(c)}"><span class="dot" style="background:var(--${{RECORD:"rec",REPORTED:"rep",SELF:"self",ALLEGATION:"all",UNVERIFIED:"unv"}[c]})"></span>${CLS[c].label}</button>`).join("")}</div>
+  <label class="filters"><span class="fl">Search</span><input type="search" id="tlq" placeholder="Search events" value="${esc(tlState.q)}"></label>
+ </div>
+ <div class="tl" id="tl"></div>`;
+}
+function drawTimeline(){
+ const q=tlState.q.toLowerCase();
+ const ev=EVENTS.filter(e=>tlState.cls.has(e.c)&&e.th.some(t=>tlState.th.has(t))&&(!q||e.t.toLowerCase().includes(q)||e.dl.toLowerCase().includes(q))).sort((a,b)=>a.d.localeCompare(b.d));
+ let html="",yr="";
+ ev.forEach(e=>{const y=e.d.slice(0,4);const dec=+y<new Date().getFullYear()-20?y.slice(0,3)+"0s":y;if(dec!==yr){yr=dec;html+=`<div class="tl-year">${dec}</div>`}
+  html+=`<div class="ev"><div class="d">${esc(e.dl)}</div><div class="t">${e.t}<div class="tags">${tag(e.c)}${e.th.map(t=>`<span class="etag">${esc(THREADS[t])}</span>`).join("")}<span>${srcs(e.s)}</span>${invBtn(e.ref)}</div></div></div>`});
+ $("#tl").innerHTML=html||`<p class="note">No events match these filters.</p>`;
+}
+function bindTimeline(){
+ drawTimeline();
+ $("#fth").addEventListener("click",e=>{const b=e.target.closest("[data-th]");if(!b)return;const k=b.dataset.th;tlState.th.has(k)?tlState.th.delete(k):tlState.th.add(k);b.setAttribute("aria-pressed",tlState.th.has(k));drawTimeline()});
+ $("#fcl").addEventListener("click",e=>{const b=e.target.closest("[data-cl]");if(!b)return;const k=b.dataset.cl;tlState.cls.has(k)?tlState.cls.delete(k):tlState.cls.add(k);b.setAttribute("aria-pressed",tlState.cls.has(k));drawTimeline()});
+ $("#tlq").addEventListener("input",e=>{tlState.q=e.target.value;drawTimeline()});
+}
+
+function vMap(){
+ const N=Object.fromEntries(NODES.map(n=>[n.id,n]));
+ const w=n=>Math.max(n.l.length*7.1,n.sub.length*6.1)+22;
+ const edges=EDGES.map(([a,b,lab,strong,dash])=>{const A=N[a],B=N[b];const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;const lw=lab.length*5.9+8;
+  return `<g><line class="edge${strong?" strong":""}${dash?" dash":""}" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/><rect class="elab-bg" x="${mx-lw/2}" y="${my-8}" width="${lw}" height="14" rx="2"/><text class="elab" x="${mx}" y="${my+3}" text-anchor="middle">${esc(lab)}</text></g>`}).join("");
+ const nodes=NODES.map(n=>{const W=w(n);return `<g class="node k-${n.k}" data-id="${n.id}" tabindex="0" role="button" aria-label="${esc(n.l)}"><rect x="${n.x-W/2}" y="${n.y-20}" width="${W}" height="40" rx="5"/><text x="${n.x}" y="${n.y-3}" text-anchor="middle">${esc(n.l)}</text><text class="sub" x="${n.x}" y="${n.y+12}" text-anchor="middle">${esc(n.sub)}</text></g>`}).join("");
+ return `<div><h2>Connections</h2><p class="lede">How the people, organizations, money and disputes around ${esc(CASE.subject)} connect. Solid lines are documented; dashed lines are open questions. Select a box for detail.</p></div>
+ <div class="legend"><span class="item"><span class="tag c-REPORTED">COMPANY</span></span><span class="item"><span class="tag c-RECORD">REAL ESTATE</span></span><span class="item"><span class="tag c-SELF">POLITICAL</span></span><span class="item"><span class="tag c-ALLEGATION">MONEY / LENDER</span></span><span class="item"><span class="tag c-UNVERIFIED">LEGAL</span></span></div>
+ ${NODES.length?`<div class="panel mapbox"><svg viewBox="0 0 1010 625" role="img" aria-label="Connection map">${edges}${nodes}</svg></div>`:`<div class="panel"><p class="note" style="margin:0">No connections mapped yet.</p></div>`}
+ <div class="panel detail" id="mdet"><p class="empty">Select a box on the map to see what is known about it.</p></div>`;
+}
+function bindMap(){
+ const det=$("#mdet");
+ const show=id=>{const n=NODES.find(x=>x.id===id);document.querySelectorAll(".node").forEach(g=>g.classList.toggle("sel",g.dataset.id===id));
+  det.innerHTML=`<h3>${esc(n.l)}</h3><p style="margin:0 0 8px">${esc(n.info)}</p><div class="btnrow">${invBtn(n.ref)}<button class="chip" data-go="${n.go}">Open in ${esc(VIEWS.find(v=>v[0]===n.go)[1])}</button></div>`};
+ document.querySelectorAll(".node").forEach(g=>{g.addEventListener("click",()=>show(g.dataset.id));g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show(g.dataset.id)}})});
+ det.addEventListener("click",e=>{const b=e.target.closest("[data-go]");if(b)go(b.dataset.go)});
+ if(NODES.length)show(NODES[0].id);else det.hidden=true;
+}
+
+function vEntities(){
+ const groups=[...new Set(ENTITIES.map(e=>e.g))];
+ return `<div><h2>Entities &amp; People</h2><p class="lede">Organizations, properties and committees linked to ${esc(CASE.subject)}, then the people who appear around them. People are listed only in the role they play in a business, legal or political record.</p></div>
+ ${ENTITIES.length||PEOPLE.length||AFFIL.length?"":`<div class="panel"><p class="note" style="margin:0">Nothing filed yet.</p></div>`}
+ ${groups.map(g=>`<div class="grouphead">${esc(g)}</div><div class="grid3">${ENTITIES.filter(e=>e.g===g).map(e=>`
+  <div class="ecard"><div class="row1"><h3>${esc(e.n)}</h3><span class="conf cf-${e.conf}" title="Confidence this is tied to ${esc(CASE.subjectShort)}">${e.conf}</span></div>
+  <div class="type">${esc(e.t)}</div><div>${invBtn(e.ref)}</div>
+  <dl><dt>Role</dt><dd>${esc(e.role)}</dd><dt>When</dt><dd>${esc(e.when)}</dd><dt>Status</dt><dd>${esc(e.status)}</dd></dl>
+  <details class="more"><summary>Notes and sources</summary><p class="note" style="margin:6px 0">${esc(e.notes)}</p><div>${srcs(e.s)}</div></details></div>`).join("")}</div>`).join("")}
+ ${PEOPLE.length?`<div class="grouphead">People</div>
+ <div class="tblwrap"><table><thead><tr><th>Name</th><th>Role in the record</th><th>Evidence</th><th>Source</th><th></th></tr></thead><tbody>
+ ${PEOPLE.map(p=>`<tr><td><b>${esc(p.n)}</b></td><td>${esc(p.r)}</td><td>${tag(p.c)}</td><td>${srcs(p.s)}</td><td>${invBtn(p.ref)}</td></tr>`).join("")}
+ </tbody></table></div>`:""}
+ ${AFFIL.length?`<div class="grouphead">Affiliations the subject describes</div>
+ <div class="tblwrap"><table><thead><tr><th>Organization or person</th><th>Type</th><th>What was said</th><th>Evidence</th><th>Source</th><th></th></tr></thead><tbody>
+ ${AFFIL.map(a=>`<tr><td><b>${esc(a.n)}</b></td><td>${esc(a.k)}</td><td>${esc(a.d)}</td><td>${tag("SELF")}</td><td>${srcs(a.s)}</td><td>${invBtn(a.ref)}</td></tr>`).join("")}
+ </tbody></table></div>
+ <p class="note" style="margin:0">From the subject’s own statements. Investigating these looks for public overlap, not at private beliefs.</p>`:""}`;
+}
+
+function vLegal(){
+ return `<div><h2>Legal &amp; Money</h2><p class="lede">Lawsuits, liens, loans and filings. Rows without a source are leads still being chased.</p></div>
+ ${LEGAL.length?"":`<div class="panel"><p class="note" style="margin:0">Nothing filed yet.</p></div>`}
+ <div class="tblwrap"><table><thead><tr><th>Matter</th><th>Court / agency</th><th>Parties</th><th>Type</th><th>Date</th><th>Status</th><th>Amount</th><th>Evidence</th><th>Source</th><th></th></tr></thead><tbody>
+ ${LEGAL.map(r=>`<tr><td><b>${esc(r.m)}</b></td><td>${esc(r.ct)}</td><td>${esc(r.p)}</td><td>${esc(r.ty)}</td><td class="num">${esc(r.dt)}</td><td>${esc(r.o)}</td><td class="num">${esc(r.amt)}</td><td>${tag(r.c)}</td><td>${srcs(r.s)}</td><td>${invBtn(r.ref)}</td></tr>`).join("")}
+ </tbody></table></div>`;
+}
+
+function vAliases(){
+ return `<div><h2>Names</h2><p class="lede">Every form of the name found in records, and how sure we are each one is ${esc(CASE.subjectShort)}.</p></div>
+ <div class="legend"><span class="item"><span class="conf cf-CONFIRMED">CONFIRMED</span> tied by the record</span><span class="item"><span class="conf cf-LIKELY">LIKELY</span> strong match, one check missing</span><span class="item"><span class="conf cf-POSSIBLE">POSSIBLE</span> plausible, little evidence</span><span class="item"><span class="conf cf-UNLIKELY">UNLIKELY</span> probably someone else</span></div>
+ <div class="tblwrap"><table><thead><tr><th>Name as found</th><th>Is it ${esc(CASE.subjectShort)}?</th><th>Why</th><th>Source</th><th></th></tr></thead><tbody>
+ ${ALIASES.map(a=>`<tr><td><b>${esc(a.n)}</b></td><td><span class="conf cf-${a.conf}">${a.conf}</span></td><td>${esc(a.why)}</td><td>${srcs(a.s)}</td><td>${invBtn(a.ref)}</td></tr>`).join("")}
+ </tbody></table></div>`;
+}
+
+function vQuestions(){
+ return `<div><h2>Open Questions</h2><p class="lede">Things that don’t add up yet. Each one lists what we observed, the possible explanations, and what would settle it. None of these is a conclusion.</p></div>
+ ${QUESTIONS.length?"":`<div class="panel"><p class="note" style="margin:0">None yet.</p></div>`}<div class="grid2">${QUESTIONS.map(q=>`<div class="qcard"><h3>${esc(q.h)}</h3><p class="obs">${esc(q.obs)}</p><ul>${q.poss.map(p=>`<li>${esc(p)}</li>`).join("")}</ul><div class="check"><b>Would settle it</b><br>${esc(q.check)}</div><div>${invBtn(q.ref)}</div></div>`).join("")}</div>`;
+}
+
+function vSources(){
+ const ents=Object.entries(SRC),gc=g=>ents.filter(([,v])=>(v[2]||"E")===g).length;
+ return `<div class="grid2">
+  <div class="panel"><h2>Next searches</h2><p class="note" style="margin:0 0 6px">Items that need you are on the <a href="#todo" data-go-tk="todo">Your To-Dos</a> tab.</p>${TODO.length?`<ol class="todo">${TODO.map(t=>`<li>${esc(t.t)}<span class="who">${esc(t.w)}</span></li>`).join("")}</ol>`:`<p class="note">None queued.</p>`}</div>
+  <div class="panel"><h2>Research log</h2><p class="note" style="margin:0 0 8px">Full pass reports are saved in the project.</p>
+   ${CASE.reports.length?`<div class="tblwrap"><table><thead><tr><th>Pass</th><th>Date</th><th>File</th></tr></thead><tbody>${CASE.reports.map(([p,d,f])=>`<tr><td class="num">${esc(p)}</td><td class="num">${esc(d)}</td><td style="font-family:var(--mono);font-size:12px">${esc(f)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="note">No pass reports yet.</p>`}</div>
+ </div>
+ <div class="panel"><h2>Sources</h2>
+  ${ents.length?`<div class="legend2">${Object.keys(GRADES).map(g=>`<span title="${esc(GRADES[g].desc)}"><span class="grade">${g}</span>${esc(GRADES[g].label.slice(4))} · ${gc(g)}</span>`).join("")}</div>
+  <ol style="margin:0;padding-left:22px;columns:2 320px;column-gap:28px">${ents.map(([k,[t,u,g]])=>`<li style="break-inside:avoid;margin:3px 0"><span class="grade" title="${esc((GRADES[g]||GRADES.E).desc)}">${esc(g||"–")}</span><a href="${u}" target="_blank" rel="noopener">${esc(t)}</a></li>`).join("")}</ol>`:`<p class="note" style="margin:0">No sources yet.</p>`}</div>
+ <footer>Built from public records and reporting only. Home addresses and private family details are deliberately left out.</footer>`;
+}
+
+/* ---------- Investigations (shared store) ---------- */
+const ST={active:"In progress",open:"Queued",parked:"Parked",done:"Done"};
+const ST_ORDER=["active","open","parked","done"];
+let curView="overview", drawerRef=null, askCtl=null, lastState="loading";
+const lastAnalysis={};
+const sampleReady=(window.claude&&window.claude.use)?window.claude.use("sample").catch(()=>null):Promise.resolve(null);
+
+function errMsg(e){
+ if(e&&e.code==="quota_exceeded")return "The investigations list is full. Remove some finished ones and try again.";
+ if(e&&e.code==="invalid_argument")return "You can view this list but not change it.";
+ return "That didn’t save. Check your connection and try again.";
+}
+async function addInv(o){
+ if(!DB)throw {code:"none"};
+ const now=new Date().toISOString();
+ await DB.collection("investigations").add({ref:o.ref,title:o.title,kind:o.kind||"Investigation",view:o.view||"",note:o.note||"",analysis:o.analysis||"",findings:"",status:"open",origin:"page",createdAt:now,updatedAt:now});
+}
+function fmtFind(t){
+ const lines=String(t||"").split(/\n+/).map(x=>x.trim()).filter(Boolean);
+ let sum="",items=[],rep="",paras=[];
+ lines.forEach((l,i)=>{
+  if(/^Report:/i.test(l)){rep=l.replace(/^Report:\s*/i,"");return}
+  if(/^[-•]\s+/.test(l)){items.push(l.replace(/^[-•]\s+/,""));return}
+  if(!sum&&i===0){sum=l;return}
+  paras.push(l);
+ });
+ const md=x=>esc(x).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+ return `${sum?`<div class="sum">${md(sum)}</div>`:""}${paras.map(x=>`<div>${md(x)}</div>`).join("")}${items.length?`<ul>${items.map(x=>`<li>${md(x)}</li>`).join("")}</ul>`:""}${rep?`<span class="rep">Full report: ${esc(rep)}</span>`:""}`;
+}
+function invCountsHtml(){return ST_ORDER.map(k=>`<span class="icount"><b>${INV.filter(x=>x.status===k).length}</b> ${ST[k].toLowerCase()}</span>`).join("")}
+function icard(x){
+ const it=REG[x.ref];
+ const when=x.createdAt?new Date(x.createdAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"";
+ const w=DB&&CAN_WRITE;
+ return `<div class="icard st-${esc(x.status)}">
+  <div class="t">${esc(x.title||"Untitled")}</div>
+  <div class="m">${esc(x.kind||"Investigation")} · ${x.origin==="claude"?"added by Claude":"added by you"}${when?" · "+esc(when):""}</div>
+  ${x.note?`<p class="nt">${esc(x.note)}</p>`:""}
+  ${x.findings?`<div class="fd"><b>Findings</b>${fmtFind(x.findings)}</div>`:""}
+  ${x.analysis?`<details class="more"><summary>Claude’s first take</summary><div class="ai-out" style="margin-top:6px">${esc(x.analysis)}</div></details>`:""}
+  <div class="btnrow">
+   ${w?`<label class="note" for="st-${esc(x.id)}">Status</label><select id="st-${esc(x.id)}" data-st="${esc(x.id)}">${ST_ORDER.map(k=>`<option value="${k}"${k===x.status?" selected":""}>${ST[k]}</option>`).join("")}</select>`:`<span class="note">${esc(ST[x.status]||x.status)}</span>`}
+   ${it?`<button class="linkbtn" data-open="${esc(x.ref)}">View item</button>`:""}
+   ${w?`<button class="linkbtn" data-del="${esc(x.id)}">Remove</button>`:""}
+  </div></div>`;
+}
+function invListHtml(){
+ if(invState==="loading")return `<p class="note">Loading investigations…</p>`;
+ if(invState==="none")return `<div class="panel"><p style="margin:0">Investigations are kept in this file’s shared list, which needs you signed in to claude.ai. The Investigate buttons still offer search links and Claude’s analysis.</p></div>`;
+ if(invState==="error")return `<div class="panel"><p style="margin:0">The investigations list couldn’t load. Reload the page to try again.</p></div>`;
+ if(!INV.length)return `<div class="panel"><p style="margin:0">No investigations yet. Use any <b>Investigate</b> button, or add your own above.</p></div>`;
+ return `<div style="display:grid;gap:22px">${ST_ORDER.filter(k=>INV.some(x=>x.status===k)).map(k=>`<div class="igroup"><div class="grouphead" style="margin:0">${ST[k]} · ${INV.filter(x=>x.status===k).length}</div><div class="igrid">${INV.filter(x=>x.status===k).map(icard).join("")}</div></div>`).join("")}</div>`;
+}
+function vInvestigations(){
+ return `<div><h2>Investigations</h2><p class="lede">What’s being looked into right now. Add an item from any Investigate button, or write your own. Claude reads this list at the start of each research session and writes what it finds back onto each card.</p></div>
+ <div class="ihead" id="invcounts">${invCountsHtml()}</div>
+ ${DB&&CAN_WRITE?`<form class="panel" id="newinv" style="display:grid;gap:8px"><h3 style="margin:0">New investigation</h3>
+  <label class="note" for="ni-t">What should be looked into?</label><input type="text" id="ni-t" required maxlength="160" placeholder="e.g. Where did this claim first appear?">
+  <label class="note" for="ni-n">Notes for Claude (optional)</label><textarea id="ni-n" maxlength="2000" placeholder="Anything you already know, or where to look"></textarea>
+  <div class="btnrow"><button class="btn" type="submit">Add investigation</button><span class="note" id="ni-msg" role="status"></span></div></form>`:""}
+ <div id="invlist">${invListHtml()}</div>`;
+}
+function refreshInv(){
+ document.querySelectorAll("[data-inv]").forEach(b=>{const on=invFor(b.dataset.inv);b.classList.toggle("on",!!on);const sp=b.querySelector("span");if(sp)sp.textContent=on?"Tracking":"Investigate"});
+ const tb=document.querySelector('#tabs [data-v="investigations"]');
+ if(tb){const n=INV.filter(x=>x.status==="open"||x.status==="active").length;tb.textContent="Investigations"+(n?` (${n})`:"")}
+ if(curView==="investigations"){
+  if(lastState!==invState&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#newinv")))go("investigations",true);
+  else{const l=$("#invlist");if(l)l.innerHTML=invListHtml();const c=$("#invcounts");if(c)c.innerHTML=invCountsHtml()}
+ }
+ lastState=invState;
+ if(drawerRef)renderDrawerTrack();
+}
+
+/* ---------- Investigate drawer ---------- */
+function quickLinks(o){
+ const kw=strip(o.title).replace(/[“”"]/g,"").split(" · ")[0].slice(0,70);
+ const nm=CASE.searchName?`"${CASE.searchName}" `:"";
+ const q=encodeURIComponent(nm+kw);
+ return [
+  ["Web search",`https://www.google.com/search?q=${q}`],
+  ["News search",`https://www.google.com/search?tbm=nws&q=${q}`],
+  ["CourtListener",`https://www.courtlistener.com/?q=${encodeURIComponent(CASE.searchName?`"${CASE.searchName}"`:kw)}`],
+  ...CASE.searchLinks
+ ];
+}
+function openDrawer(ref){
+ let o=REG[ref];
+ if(!o){const x=INV.find(i=>i.ref===ref);if(!x)return;o={title:x.title,kind:x.kind||"Investigation",ctx:x.note||"",s:[]};REG[ref]=o}
+ if(askCtl)askCtl.abort();
+ drawerRef=ref;
+ const d=$("#drawer");
+ d.innerHTML=`<div class="dhead"><div><div class="eyebrow">${esc(o.kind)}</div><h2>${esc(o.title)}</h2></div><button class="xbtn" id="dclose" aria-label="Close">×</button></div>
+ <p style="margin:0">${esc(o.ctx)} ${o.c?tag(o.c):""}</p>
+ ${o.c==="RECORD"?`<p class="note" style="margin:0">This is already confirmed by an official record. Investigating it means reading the full document for amounts and terms, finding related filings, and working out what it implies.</p>`:o.c?`<p class="note" style="margin:0">Not yet confirmed by an official record. Investigating it means looking for one.</p>`:""}
+ ${o.s&&o.s.length?`<div class="dsec"><div class="barhead">Sources on file</div><div>${srcs(o.s)}</div></div>`:""}
+ <div class="dsec"><div class="barhead">Search the records</div><div class="linkrow">${quickLinks(o).map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join("")}</div>
+  <p class="note" style="margin:0">Court, deed and business registries open on their own search pages; search the names shown above.</p></div>
+ <div class="dsec" id="dask"><div class="barhead">Ask Claude</div><p class="note" style="margin:0">What this could mean and what would settle it. This is analysis, not a source.</p>
+  <div class="btnrow"><button class="btn ghost" id="askbtn">Ask Claude about this</button></div><div class="ai-out" id="aiout" aria-live="polite"></div></div>
+ <div class="dsec" id="dtrack"></div>`;
+ $("#scrim").hidden=false;d.hidden=false;d.scrollTop=0;$("#dclose").focus();
+ renderDrawerTrack();
+ sampleReady.then(s=>{if(!s){const a=$("#dask");if(a)a.hidden=true}});
+}
+function closeDrawer(){if(askCtl)askCtl.abort();drawerRef=null;$("#drawer").hidden=true;$("#scrim").hidden=true}
+function renderDrawerTrack(){
+ const el=$("#dtrack");if(!el)return;
+ const x=invFor(drawerRef)||INV.find(i=>i.ref===drawerRef);
+ if(x){el.innerHTML=`<div class="barhead">Investigation</div><p style="margin:0"><span class="status ${x.status==="done"?"s-confirmed":"s-watch"}">${esc(ST[x.status]||x.status)}</span></p>
+  ${x.findings?`<div class="fd"><b>Findings</b>${fmtFind(x.findings)}</div>`:`<p class="note" style="margin:0">Claude will pick this up at the next research session.</p>`}
+  <div><button class="chip" data-go-inv>Open Investigations</button></div>`;return}
+ if(invState==="loading"){el.innerHTML="";return}
+ if(!DB){el.innerHTML=`<div class="barhead">Investigation</div><p class="note" style="margin:0">Sign in to claude.ai to add this to your investigations.</p>`;return}
+ if(!CAN_WRITE){el.innerHTML="";return}
+ el.innerHTML=`<div class="barhead">Add to investigations</div><label class="note" for="dnote">Notes for Claude (optional)</label>
+  <textarea id="dnote" maxlength="2000" placeholder="What you want checked, or anything you already know"></textarea>
+  <div class="btnrow"><button class="btn" id="dadd">Add to investigations</button><span class="note" id="dmsg" role="status"></span></div>`;
+}
+async function ask(){
+ const s=await sampleReady;if(!s)return;
+ const ref=drawerRef,o=REG[ref];if(!o)return;
+ const out=$("#aiout"),b=$("#askbtn");b.disabled=true;out.textContent="Thinking…";
+ askCtl=new AbortController();
+ const related=(o.th?EVENTS.filter(e=>e.th.some(t=>o.th.includes(t))):[]).slice(0,30).map(e=>`- ${e.dl}: ${strip(e.t)} [${CLS[e.c].label}]`).join("\n");
+ const prompt=`You are helping ${CASE.owner} review public information about ${CASE.subject} so they can ${CASE.purpose}. Rules: separate what the record shows from possibilities; label every possibility as a possibility; never state a conclusion the evidence doesn't support; keep checkable facts apart from value judgments, and on a values question give the strongest case each side makes without picking one; don't speculate about anyone's private life; name specific public records, filings, datasets or primary documents that would confirm or rule things out.
+
+Item (${o.kind}): ${o.title}
+Detail: ${o.ctx}
+Evidence class: ${o.c?CLS[o.c].label:"mixed or none"}
+Sources on file: ${(o.s||[]).map(k=>SRC[k]?SRC[k][0]:"").filter(Boolean).join("; ")||"none"}
+
+Key findings so far:
+${FINDINGS.map(f=>"- "+f.h).join("\n")}
+${related?"\nRelated timeline events:\n"+related:""}
+
+Answer in plain text with three short parts, each starting with its heading on its own line: What the record shows / What it could mean (2 to 4 possibilities, or for a values question the strongest case on each side) / What would settle it (specific searches or documents). Under 230 words. No markdown symbols.`;
+ try{
+  const r=await s(prompt,{signal:askCtl.signal,onText:({text})=>{if(drawerRef===ref)out.textContent=text}});
+  if(drawerRef===ref)out.textContent=r.text+(r.truncated?"\n\n(Cut short.)":"");
+  lastAnalysis[ref]=r.text;
+ }catch(e){
+  if(drawerRef!==ref)return;
+  out.textContent=e&&e.code==="cancelled"?"":e&&e.code==="not_granted"?"Claude isn’t available on this page for you.":e&&e.code==="rate_limited"?"Too many requests just now. Try again in a minute.":"Couldn’t get an answer. Try again.";
+ }finally{if(drawerRef===ref)b.disabled=false}
+}
+async function addFromDrawer(){
+ const ref=drawerRef,o=REG[ref];const msg=$("#dmsg"),b=$("#dadd");b.disabled=true;msg.textContent="Saving…";
+ try{await addInv({ref,title:o.title,kind:o.kind,view:o.view,note:($("#dnote")||{}).value?.trim()||"",analysis:lastAnalysis[ref]||""});msg.textContent="Added."}
+ catch(e){msg.textContent=errMsg(e);b.disabled=false}
+}
+
+document.addEventListener("click",async e=>{
+ const t=e.target;
+ const ib=t.closest("[data-inv]");if(ib){e.preventDefault();e.stopPropagation();openDrawer(ib.dataset.inv);return}
+ const op=t.closest("[data-open]");if(op){openDrawer(op.dataset.open);return}
+ if(t.closest("#dclose")||t.id==="scrim"){closeDrawer();return}
+ if(t.closest("#askbtn")){ask();return}
+ if(t.closest("#dadd")){addFromDrawer();return}
+ if(t.closest("[data-go-inv]")){closeDrawer();go("investigations");window.scrollTo({top:0});return}
+ const del=t.closest("[data-del]");
+ if(del){if(del.dataset.armed){del.disabled=true;try{await DB.collection("investigations").doc(del.dataset.del).delete()}catch(err){del.textContent=errMsg(err)}}else{del.dataset.armed="1";del.textContent="Confirm remove"}return}
+});
+document.addEventListener("change",async e=>{
+ const s=e.target.closest("[data-st]");if(!s||!DB)return;
+ try{await DB.collection("investigations").doc(s.dataset.st).update({status:s.value,updatedAt:new Date().toISOString()})}
+ catch(err){s.insertAdjacentHTML("afterend",`<span class="note">${esc(errMsg(err))}</span>`)}
+});
+document.addEventListener("submit",async e=>{
+ if(e.target.id!=="newinv")return;e.preventDefault();
+ const t=$("#ni-t").value.trim();if(!t)return;const n=$("#ni-n").value.trim();const msg=$("#ni-msg");msg.textContent="Saving…";
+ try{await addInv({ref:"custom-"+Date.now().toString(36),title:t,kind:"Your question",note:n});$("#ni-t").value="";$("#ni-n").value="";msg.textContent="Added."}
+ catch(err){msg.textContent=errMsg(err)}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&drawerRef)closeDrawer()});
+
+(async()=>{
+ if(!window.claude||!window.claude.use){invState="none";refreshInv();return}
+ let db=null,user=null;
+ try{[db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")])}catch(e){}
+ if(!db){invState="none";refreshInv();return}
+ DB=db;
+ try{const c=user&&user.can?await user.can("data.write"):null;if(c===false)CAN_WRITE=false}catch(e){}
+ db.collection("investigations").orderBy("createdAt","desc").onSnapshot(
+  s=>{INV=s.docs.map(d=>Object.assign({id:d.id},d.data()));invState="ready";refreshInv()},
+  ()=>{invState="error";refreshInv()}
+ );
+ db.collection("manual").onSnapshot(s=>{MDONE={};s.docs.forEach(d=>{MDONE[d.id]=d.data()});refreshTodo()},()=>{});
+ db.collection("invlog").orderBy("at","desc").limit(200).onSnapshot(s=>{INVLOG=s.docs.map(d=>Object.assign({id:d.id},d.data()));logState="ready";refreshLogs()},()=>{logState="error";refreshLogs()});
+ db.collection("insights").orderBy("at","desc").limit(100).onSnapshot(s=>{INSIGHTS=s.docs.map(d=>Object.assign({id:d.id},d.data()));logState="ready";refreshLogs()},()=>{logState="error";refreshLogs()});
+ db.collection("feed").orderBy("at","desc").limit(25).onSnapshot(
+  s=>{FEED=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderTicker()},
+  ()=>{}
+ );
+})();
+
+/* ---------- Decision brief ---------- */
+function vBrief(){
+ const B=BRIEF;
+ if(!B.bottom)return `<div><h2>Decision Brief</h2><p class="lede">Not written yet. The brief is written in a live session once there is enough on file to act on: the bottom line, scenarios, options and tripwires.</p></div>`;
+ const chk=a=>`<ul class="chk">${a.map(x=>`<li><span>${esc(x)}</span></li>`).join("")}</ul>`;
+ return `<div><div class="eyebrow">Decision brief${B.asof?` · as of ${esc(B.asof)}`:""}</div><h2 style="margin-top:4px">${esc(B.title)}</h2></div>
+ <div class="panel"><p class="bl">${esc(B.bottom)}</p></div>
+ <div class="grid2">
+  ${B.facts.length?`<div class="panel"><h3>What the record says</h3>${B.facts.map((f,i)=>`<div class="finding"><span class="n">${String(i+1).padStart(2,"0")}</span><div>${esc(f[0])}<p>${esc(f[1])}</p></div></div>`).join("")}</div>`:""}
+  ${B.scen.length?`<div class="panel" style="display:grid;gap:16px;align-content:start"><h3 style="margin:0">Ways this could go</h3>${B.scen.map(x=>`<div class="scen ${x.c}"><b>${esc(x.n)}</b><p>${esc(x.p)}</p><p class="note">${esc(x.sig)}</p></div>`).join("")}<p class="note" style="margin:0">These are possibilities, not predictions.</p></div>`:""}
+ </div>
+ ${B.opts.length?`<div><h3>Your options</h3></div>
+ <div class="grid2">${B.opts.map(o=>`<div class="panel opt"><div class="tagline">${esc(o.w)}</div><h3 style="margin:0">${esc(o.t)}</h3><ul>${o.do.map(d=>`<li>${esc(d)}</li>`).join("")}</ul><div class="note"><b class="k">Upside</b> ${esc(o.pro)}</div><div class="note"><b class="k">Downside</b> ${esc(o.con)}</div></div>`).join("")}</div>`:""}
+ <div class="grid2">
+  ${B.trips.length?`<div class="panel"><h3>Tripwires</h3><p class="note" style="margin:0 0 6px">If any of these happens, move from “prepare” to “act.”</p>${B.trips.map(t=>`<div class="trip"><span class="status s-partial">${esc(t[0])}</span><span>${esc(t[1])}</span></div>`).join("")}</div>`:""}
+  ${B.protect.length?`<div class="panel"><h3>${esc(B.protectTitle)}</h3>${chk(B.protect)}</div>`:""}
+  ${B.team.length?`<div class="panel"><h3>${esc(B.teamTitle)}</h3>${chk(B.team)}</div>`:""}
+  ${B.ask.length?`<div class="panel"><h3>${esc(B.askTitle)}</h3>${chk(B.ask)}</div>`:""}
+ </div>
+ <p class="disclaim">A summary of public records and general information, not legal or financial advice.</p>`;
+}
+
+/* ---------- Manual to-dos ---------- */
+let MDONE={};
+function vTodo(){
+ const open=MANUAL.filter(m=>!MDONE[m.id]).length;
+ return `<div><h2>Your To-Dos</h2><p class="lede">Things only you can do, or that I need you to unblock. ${open} of ${MANUAL.length} open. Check items off as you go; I’ll see the checkmarks.</p></div>
+ <div class="legend"><span class="item"><span class="pri pri-1">Now</span></span><span class="item"><span class="pri pri-2">Soon</span></span><span class="item"><span class="pri pri-3">When you can</span></span></div>
+ <div class="panel" id="mlist">${mlistHtml()}</div>`;
+}
+function mlistHtml(){
+ const lbl={1:"Now",2:"Soon",3:"When you can"};
+ return [...MANUAL].sort((a,b)=>(!!MDONE[a.id])-(!!MDONE[b.id])||a.p-b.p).map(m=>{const d=MDONE[m.id];return `<div class="mop${d?" done":""}">
+  <input type="checkbox" id="${m.id}" data-mop="${m.id}"${d?" checked":""}${DB&&CAN_WRITE?"":" disabled"} aria-label="Mark done: ${esc(m.t)}">
+  <div><label class="mt" for="${m.id}">${esc(m.t)}</label>
+  <div class="mm"><span class="pri pri-${m.p}">${lbl[m.p]}</span><span class="who2">${esc(m.who)}</span>${m.link[1]?`<a href="${m.link[1]}" target="_blank" rel="noopener">${esc(m.link[0])} ↗</a>`:""}${d&&d.at?`<span class="who2">done ${esc(new Date(d.at).toLocaleDateString(undefined,{month:"short",day:"numeric"}))}</span>`:""}</div>
+  <div class="note">${esc(m.why)}</div>
+  <ol>${m.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div></div>`}).join("");
+}
+function refreshTodo(){const l=$("#mlist");if(l&&curView==="todo")l.innerHTML=mlistHtml();
+ const tb=document.querySelector('#tabs [data-v="todo"]');if(tb){const n=MANUAL.filter(m=>!MDONE[m.id]).length;tb.textContent="Your To-Dos"+(n?` (${n})`:"")}}
+document.addEventListener("change",async e=>{const c=e.target.closest("[data-mop]");if(!c||!DB)return;const id=c.dataset.mop;
+ try{if(c.checked)await DB.collection("manual").doc(id).set({done:true,at:new Date().toISOString()});else await DB.collection("manual").doc(id).delete()}
+ catch(err){c.checked=!c.checked;c.closest(".mop").insertAdjacentHTML("beforeend",`<span class="note">${esc(errMsg(err))}</span>`)}});
+
+/* ---------- Live ticker ---------- */
+let FEED=[];
+const seenAt=(()=>{const v=store.get(CASE.key+"-feed-seen");return v?+v:0})();
+function ago(iso){const t=new Date(iso).getTime();if(!t)return "";const m=Math.round((Date.now()-t)/60000);if(m<1)return "just now";if(m<60)return m+"m ago";const h=Math.round(m/60);if(h<48)return h+"h ago";return new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric"})}
+function renderTicker(){
+ const bar=$("#ticker");if(!FEED.length){bar.hidden=true;return}
+ bar.hidden=false;
+ const items=FEED.map(f=>{const fresh=new Date(f.at).getTime()>seenAt;return `<button class="tk-item${fresh?" fresh":""}"${f.ref?` data-open="${esc(f.ref)}"`:` data-go-tk="${esc(f.view||"overview")}"`} title="${esc(f.text)}"><span class="tk-time">${esc(ago(f.at))}</span><span class="tk-txt">${esc(f.text)}</span></button>`}).join("");
+ const tr=$("#tktrack");
+ tr.innerHTML=items+`<span aria-hidden="true" style="display:contents">${items}</span>`;
+ tr.style.setProperty("--dur",Math.max(40,FEED.length*9)+"s");
+ tr.classList.add("run");
+ const n=FEED.filter(f=>new Date(f.at).getTime()>seenAt).length;
+ const nb=$("#tknew");nb.hidden=!n;nb.textContent=n+" new";
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-go-tk]");if(b){go(b.dataset.goTk);window.scrollTo({top:0})}});
+window.addEventListener("pagehide",()=>{if(FEED.length)store.set(CASE.key+"-feed-seen",String(Date.now()))});
+setInterval(()=>{if(FEED.length)renderTicker()},60000);
+
+
+const TIP=document.createElement("div");TIP.className="tip";document.body.appendChild(TIP);
+document.addEventListener("mousemove",e=>{const t=e.target.closest&&e.target.closest("[data-tip]");if(!t){TIP.style.display="none";return}
+ TIP.innerHTML=`<b>${esc(t.dataset.tip)}</b>${esc(t.dataset.tipb||"")}`;TIP.style.display="block";
+ const r=TIP.getBoundingClientRect();let x=e.clientX+14,y=e.clientY+14;if(x+r.width>innerWidth-8)x=e.clientX-r.width-14;if(y+r.height>innerHeight-8)y=e.clientY-r.height-14;TIP.style.left=x+"px";TIP.style.top=y+"px"});
+
+/* ---------- Run logs ---------- */
+let INVLOG=[],INSIGHTS=[],logState="loading";
+const fdt=t=>{try{return new Date(t).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}catch(e){return t||""}};
+function insightsHtml(){
+ if(!INSIGHTS.length)return `<p class="note">${logState==="loading"?"Loading…":logState==="error"?"Couldn’t load the log.":`No merge runs yet. Merges run at ${esc(CASE.mergeTimes)}.`}</p>`;
+ return INSIGHTS.map(x=>`<div class="logent"><div class="lh"><span>${esc(fdt(x.at))}</span><span class="oc ${x.outcome==="fail"?"fail":x.outcome==="none"?"none":"merged"}">${x.outcome==="fail"?"NOT PUBLISHED":x.outcome==="none"?"NOTHING TO MERGE":"MERGED"}</span>${x.version?`<span>Version ${esc(x.version)}</span>`:""}${x.merged!=null?`<span>${esc(x.merged)} card${x.merged==1?"":"s"}</span>`:""}${x.model?`<span>${esc(x.model)}</span>`:""}</div>
+  <div class="lt">${esc(x.headline||"")}</div>${x.insights?fmtFind(x.insights):""}
+  ${x.corrections?`<details open><summary>Corrections to earlier entries</summary>${fmtFind(x.corrections)}</details>`:""}
+  ${x.flags?`<details><summary>Flags for you</summary>${fmtFind(x.flags)}</details>`:""}</div>`).join("");
+}
+function invlogHtml(){
+ if(!INVLOG.length)return `<p class="note">${logState==="loading"?"Loading…":logState==="error"?"Couldn’t load the log.":"No hourly runs logged yet."}</p>`;
+ const lab={done:"DONE",parked:"PARKED",none:"NO WORK",fail:"FAILED"};
+ return INVLOG.map(x=>`<div class="logent"><div class="lh"><span>${esc(fdt(x.at))}</span><span class="oc ${esc(x.outcome||"done")}">${lab[x.outcome]||"DONE"}</span>${x.model?`<span>${esc(x.model)}</span>`:""}</div>
+  <div class="lt">${esc(x.title||"")}</div><p style="margin:0;font-size:13.5px">${esc(x.headline||"")}</p>
+  ${x.report?`<details data-rep="${esc(x.report)}"><summary>Full report</summary><div class="rep">Loading…</div></details>`:""}</div>`).join("");
+}
+function vLogs(){
+ return `<div><h2>Run logs</h2><p class="lede">What the scheduled runs have done, newest first. <b>Insights</b> come from ${esc(CASE.mergeTimes)}, which folds new findings into this case file and checks them against what was already here. The <b>investigation log</b> is the research runs, one card each.</p></div>
+ <div class="logcols">
+  <div class="panel"><h2>Insights log</h2><div id="lg-ins">${insightsHtml()}</div></div>
+  <div class="panel"><h2>Investigation log</h2><div id="lg-inv">${invlogHtml()}</div></div>
+ </div>`;
+}
+let logsBound=false;
+function bindLogs(){
+ if(logsBound)return;logsBound=true;
+ $("#main").addEventListener("toggle",async e=>{const d=e.target;if(!d.dataset||!d.dataset.rep||!d.open||d.dataset.loaded)return;d.dataset.loaded="1";const box=d.querySelector(".rep");
+  try{const doc=await DB.collection("reports").doc(d.dataset.rep).get();const v=doc&&(doc.data?doc.data():doc);box.textContent=(v&&v.body)||"Report not found."}catch(err){box.textContent="Couldn’t load the report."}},true);
+}
+function refreshLogs(){if(curView!=="logs")return;const a=$("#lg-ins"),b=$("#lg-inv");if(a)a.innerHTML=insightsHtml();if(b)b.innerHTML=invlogHtml()}
+
+/* ---------- Router ---------- */
+const RENDER={overview:[vOverview],claims:[vClaims,bindClaims],brief:[vBrief],logs:[vLogs,bindLogs],todo:[vTodo],investigations:[vInvestigations],timeline:[vTimeline,bindTimeline],map:[vMap,bindMap],entities:[vEntities],legal:[vLegal],aliases:[vAliases],questions:[vQuestions],sources:[vSources]};
+function go(id,keep){
+ if(!RENDER[id])id="overview";
+ curView=id;
+ document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.v===id));
+ const [r,bind]=RENDER[id];
+ $("#main").innerHTML=`<section class="view">${r()}</section>`;
+ bind&&bind();
+ store.set(CASE.key+"-view",id);
+ if(location.hash.slice(1)!==id){try{history.replaceState(null,"","#"+id)}catch(e){}}
+}
+document.title=CASE.title;$("#hd-eye").textContent=CASE.eyebrow;$("#hd-title").textContent=CASE.title;
+$("#hd-meta").innerHTML=`${esc(CASE.pass)}${CASE.asof?" · "+esc(CASE.asof):""}<br>${Object.keys(SRC).length} source${Object.keys(SRC).length===1?"":"s"}`;
+$("#tabs").innerHTML=VIEWS.map(([k,v])=>`<button role="tab" data-v="${k}">${v}</button>`).join("");
+$("#tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(b){go(b.dataset.v);window.scrollTo({top:0})}});
+go(location.hash.slice(1)||store.get(CASE.key+"-view")||"overview");
+refreshInv();refreshTodo();
+</script>
+
+</body></html>
